@@ -1,250 +1,381 @@
-## Part 1. Installation of the OS
+## Part 1. Инструмент ipcalc.
 
-  `cat /etc/issue` 
+## 1.1 Сети и маски:
+Адрес сети 192.167.38.54/13
+![](screen/1.1.png)
+Перевод маски 255.255.255.0 в префиксную и двоичную запись
+![](screen/1.2.png)
 
+    * /15 в обычную и двоичную
 
-![OS verison](images/part1.1.png "OS version")
-  |:--:| 
-| *OS version* |
+    ![](screen/1.3.png)
 
+    * 11111111.11111111.11111111.11110000 в обычную и префиксную
+    
+    ![](screen/1.4.png)
 
-## Part 2. Creating a user
 
-![User_creation](images/part2.1.png)
-  |:--:| 
-| *Command to create a 'test_user' user and add him to adm group* |
+Минимальный и максимальный хост в сети 12.167.38.4 при масках; 
+* /8:
 
+    ![](screen/1.5.png)
 
+* 11111111.11111111.00000000.00000000:
 
-`cat /etc/passwd`
+    ![](screen/1.6.png)
+* 255.255.254.0:
 
+    ![](screen/1.7.png)
+* /4:
 
-![checking_user](images/part2.2.png)
-  |:--:| 
-| *now user 'test_user' is in adm group* |
+    ![](screen/1.8.png)
 
+## 1.2 localhost:
 
-## Part 3. Setting up the OS network
+Определить и записать в отчёт, можно ли обратиться к приложению, работающему на localhost, со следующими IP: 194.34.23.100/16, 127.0.0.2/24, 127.1.0.1/8, 128.0.0.1/8
+* 194.34.23.100/16, 128.0.0.1/8 - не являются петлей lo, обратиться нельзя
+* 127.0.0.2/24, 127.1.0.1/8 - являются Loopback, обращение возможно
 
-1. 
-![Changing machine name](images/part3.1.png)
-  |:--:| 
-| *Сhanging machine name to 'user-1'* |
+## 1.3 Диапазоны и сегменты сетей
+Privat ip addres: 
+* 10.0.0.45/8
+* 192.168.4.2/16
+* 172.20.250.4/12
+* 192.172.0.1/12 Частично
+* 172.16.255.255/12
+* 10.10.10.10/8
+    
+Public:
+* 134.43.0.2/16
+* 172.0.2.1/12
+* 172.68.0.2/12
+* 192.169.168.1/16
 
+Какие из перечисленных IP адресов шлюза возможны у сети 10.10.0.0/18:
+1. 10.10.0.2
+2. 10.10.10.10
 
-2. 
-![Setting time zone](images/part3.2.png)
-  |:--:| 
-| *Setting time zone* |
+## Part 2. Статическая маршрутизация между двумя машинами
 
+С помощью команды ip a посмотреть существующие сетевые интерфейсы
 
-3. 
-![Checking network interfaces](images/part3.3.png)
-  |:--:| 
-| *Checking network interfaces* |
+* ws1:
+    ![](screen/2.1.png)
+* ws2:
+    ![](screen/2.2.png)
 
->lo is the loopback interface. \
->This is a special network interface that the system uses to communicate with itself. It is a set of methods necessary to correct the router's operation and data transmission. \
->The interface is needed to display processes in the router.
+Описать сетевой интерфейс, соответствующий внутренней сети, на обеих машинах и задать следующие адреса и маски: ws1 - 192.168.100.10, маска /16, ws2 - 172.24.116.8, маска /12
 
-4. 
-![Getting current DHCP server ip-address](images/part3.4.png)
-  |:--:| 
-| *Getting current DHCP server ip-address* |
+* ws 1:
+    ![](screen/2.3.png)
+* ws 2:
+    ![](screen/2.4.png)
 
->DHCP (Dynamic Host Configuration Protocol) is a protocol that automatically configuring device's IP adresses. \
->It takes 4 steps to configure IP to client, this process named DORA: \
->D: Discover \
->O: Offer \
->R: Request \
->A: Acknowledgement
+Выполнить команду netplan apply для перезапуска сервиса сети
 
-5. 
-![Getting internal and external ip-addresses](images/part3.5.png)
-  |:--:| 
-| *Getting internal and external ip-addresses* |
+* ws 1:
+    ![](screen/2.5.png)
+* ws 2:
+    ![](screen/2.6.png)
 
-6. 
-![static](images/part3.6.1.png)
-  |:--:|
-![static.2](images/part3.6.2.png)
-![static.3](images/part3.6.3.png)
-| *Setting static ip address* |
+## 2.1. Добавление статического маршрута вручную
 
-7. 
-![checkip](images/part3.7.1.png)
-  |:--:|
-![checkip.2](images/part3.7.2.png)
-| *Checking changes* |
+Добавить статический маршрут от одной машины до другой и обратно при помощи команды вида ip r add
 
+Пропинговать соединение между машинами
 
+* ws 1:
+    ![](screen/2.7.png)
+* ws 2:
+    ![](screen/2.8.png)
 
-## Part 4. OS Update
-![update](images/part4.1.png)
-  |:--:|
-| *Updating OS* |
+## 2.2. Добавление статического маршрута с сохранением
 
+Добавить статический маршрут от одной машины до другой с помощью файла 
 
+* ws 1:
+    ![](screen/2.9.png)
+* ws 2:
+    ![](screen/2.10.png)
 
-## Part 5. Using the sudo command
+Пропинговать соединение между машинами
 
-![sudo user](images/part5.1.png)
-  |:--:|
-| *Giving sudo rights to 'test_user'* |
+* ws 1:
+    ![](screen/2.11.png)
+* ws 2:
+    ![](screen/2.12.png)
 
-> The sudo command allows us to run programs with the security privileges of another user (by default, as the superuser).
+## Part 3. Утилита iperf3
 
-![sudo](images/part5.2.png)
-  |:--:|
-| *Changing hostname using 'test_user'* |
+## 3.1. Скорость соединения
 
+Перевести и записать в отчёт: 8 Mbps в MB/s, 100 MB/s в Kbps, 1 Gbps в Mbps
 
-## Part 6. Installing and configuring the time service
-
-![time service](images/part6.1.png)
-  |:--:|
-| *Checking time service* |
-
-## Part 7. Installing and using text editors
-
-1. *==VIM==*
-
-![vim](images/part7.1.1.png)
-  |:--:|
-![vim.2](images/part7.1.2.png)
-![vim.3](images/part7.1.3.png)\
-| *Using VIM* |
-
-  >to enter editing mode press 'i' \
-  >to exit editing mode press ESC \
-  >to save & exit type ':wq' and then press ENTER \
-  >to exit without saving changes type ':q' press ENTER \
-  >to search /<search text> \
-  >to search & replace :s/<search text>/<replacement text>
-
-2. *==NANO==*
-
-![nano](images/part7.2.1.png)
-  |:--:|
-![nano.2](images/part7.2.2.png)
-![nano.3](images/part7.2.3.png)
-![nano.4](images/part7.2.4.png)
-| *Using NANO* |
-
-  >to save & exit press control (^) + X and then type Y and press ENTER two times \
-  >to exit without saving changes press control (^) + X and then type N and press ENTER \
-  >search: Control (^) + W \
-  >replace: Option (⌥) + R \
-
-3. *==MCEDIT==_*
-
-![mcedit](images/part7.3.1.png)
-  |:--:|
-![mcedit.2](images/part7.3.2.png)
-![mcedit.3](images/part7.3.3.png)
-![mcedit.4](images/part7.3.4.png)
-| *Using MCEDIT* |
+8 Mbps = 1 Mb/s. 
+100 MB/s = 100000 Kbps.
+1 Gbps = 1000 Mbps.
 
-  >to save & exit fn+F10 and choose Yes \
-  >to exit without saving changes fn+F10 and choose No \
-  >search: fn+F7 \
-  >replace: fn+F4
-
-## Part 8. Installing and basic setup of the SSHD service
-
-1. 
-![installing ](images/part8.1.png)
-  |:--:|
-| *installing SSHd* |
-
-2. 
-![enabling ssh autostart](images/part8.2.png)
-  |:--:|
-| *enabling ssh autostart* |
-
-3. 
-![reset](images/part8.3.png)
-  |:--:|
-![reset.2](images/part8.4.png)
-| *Resetting ssh ports to 2022* |
-
-4. 
-![ps](images/part8.5.png)
-  |:--:|
-| *showing sshd in procces via PID* |
-
-`netstat -tan`
-![netstat](images/part8.6.png)
-
-> --numeric , -n to show network addresses as numbers \
->-a, --all to show status of all sockets \
->-t --tcp to display only tcp connections \
-
->Output Columns: \
->Proto - protocol used by the socket \
->Recv-Q - shows the number of bytes not copied by the program connected to the socket \
->Send-Q - shows the number of bytes not recognized (confirmed) by the remote host \
->Local Address - Local computer IP address and port number used Foreign Address - IP address and port number of the remote computer to which the socket is connected \
-> State - socket status \
-> 0.0.0.0 - This is a non-routable meta address that is used to identify an unknown or invalid target. In terms of servers, 0.0.0.0 means all IPv4 addresses on the local machine. In the case of a route entry, this means the default route \
-
-## Part 9. Installing and using the top, htop utilities
-
-uptime: 9 min \
-user: 1 \
-load average: 0.00, 0.02, 0.03 \
-Tasks total: 94 \
-%Cpu(s): 0,0, 0.0 sy, 0.0 ni, 100.0 id, 0.0 wa, 0.0 hi, 0.0 si, 0.0 st \
-MiB Mem: 508.4 free, 144.8 used 323.7 buff/cache \
-most %MEM pid: 641 \
-most %CPU pid: 1
-
-![htop](images/part9.1.png)
-![htop.2](images/part9.2.png)
-![htop.3](images/part9.3.png)
-![htop.4](images/part9.4.png)
-![htop.5](images/part9.5.png)
-
-## Part 10. Using the fdisk utility
-
-![fdisk](images/part10.1.png)
-
-## Part 11. Using the df utility
-
-Partition size: 4299472 \
-Used: 3120460 \
-Free space: 940012 \
-Use%: 77 \
-Units: 1Kb
-
-_Human readable_
-Partition size: 4.2G \
-Used: 3.0G \
-Free space: 918M \
-Use%: 77% \
-Type: ext4
-
-## Part 12. Using the du utility
-
-![du](images/part12.1.png)
-![du.2](images/part12.2.png)
-![du.3](images/part12.3.png)
-
-## Part 13. Installing and using the ncdu utility
-
-![ncdu](images/part13.1.png)
-![ncdu.2](images/part13.2.png)
-![ncdu.3](images/part13.3.png)
-
-
-## Part 14. Working with system logs
-Aug 10 18:23:38 user-1 by LOGIN
-
-![restart_log](images/part14.1.png)
-
-## Part 15. Using the CRON job scheduler
-
-![cron](images/part15.1.png)
-![cron.2](images/part15.2.png)
-![cron.3](images/part15.3.png)
-![cron.4](images/part15.4.png)
+## 3.2. Утилита iperf3
+
+iperf3 -s -- запустить сервер
+iperf3 -c 192.xxx.xxx.xxx -- обращение к серверу
+
+Измерить скорость соединения между ws1 и ws2:
+
+![](screen/3.1.png)
+
+## Part 4. Сетевой экран
+
+Создать файл /etc/firewall.sh, имитирующий фаерволл, на ws1 и ws2.
+
+Нужно добавить в файл подряд следующие правила:
+
+1) на ws1 применить стратегию когда в начале пишется запрещающее правило, а в конце пишется разрешающее правило (это касается пунктов 4 и 5)
+
+2) на ws2 применить стратегию когда в начале пишется разрешающее правило, а в конце пишется запрещающее правило (это касается пунктов 4 и 5)
+
+3) открыть на машинах доступ для порта 22 (ssh) и порта 80 (http)
+
+4) запретить echo reply (машина не должна "пинговаться”)
+
+5) разрешить echo reply (машина должна "пинговаться")
+
+ws1 (left), ws2 (rigth)
+
+![](screen/4.1.png)
+
+Запустить файлы на обеих машинах командами chmod +x /etc/firewall.sh и /etc/firewall.sh
+
+ws1:
+
+![](screen/4.2.png)
+
+ws1:
+
+![](screen/4.3.png)
+
+* Разница в стратегиях. Первая звучит так, запрещенно всё, что явно не разрешенно. Вторая звучит наоборот. Разрешенно всё, что явным образом не запрещенно. Первая модель предпочтительнее с точки зрения безопасности.
+
+## 4.2. Утилита nmap
+
+Командой ping найти машину, которая не "пингуется", после чего утилитой nmap показать, что хост машины запущен
+
+ws1 ping -> ws2
++ nmap
+
+![](screen/4.4.png)
+
+ws2 ping -> ws1
+
+![](screen/4.5.png)
+
+## Part 5. Статическая маршрутизация сети
+
+## 5.1. Настройка адресов машин
+
+Настроить конфигурации машин в etc/netplan/00-installer-config.yaml согласно сети на рисунке.
+
+* В отчёт поместить скрины с содержанием файла etc/netplan/00-installer-config.yaml для каждой машины.
+
+![](screen/4.6.png)
+
+* В отчёт поместить скрины с вызовом и выводом использованных команд.
+
+ws1 -> r1
+
+![](screen/4.7.png)
+
+ws22 -> ws21
+
+![](screen/4.8.png)
+
+## 5.2. Включение переадресации IP-адресов
+
+* выполните команду на роутерах:
+sysctl -w net.ipv4.ip_forward=1
+
+![](screen/4.9.png)
+
+Откройте файл /etc/sysctl.conf и добавьте в него следующую строку:
+
+net.ipv4.ip_forward = 1
+
+В отчёт поместить скрин с содержанием изменённого файла /etc/sysctl.conf.
+
+![](screen/4.10.png)
+
+## 5.3. Установка маршрута по-умолчанию
+
+Настроить маршрут по-умолчанию (шлюз) для рабочих станций.
+* В отчёт поместить скрин с содержанием файла etc/netplan/00-installer-config.yaml
+
+![](screen/4.13.png)
+
+Вызвать ip r и показать, что добавился маршрут в таблицу маршрутизации
+
+* В отчёт поместить скрин с вызовом и выводом использованной команды.
+
+![](screen/4.14.png)
+
+Пропинговать с ws11 роутер r2 и показать на r2, что пинг доходит. Для этого использовать команду:
+* tcpdump -tn -i eth1
+
+![](screen/4.15.png)
+
+## 5.4 Добавление статических маршрутов
+
+Вызвать ip r и показать таблицы с маршрутами на обоих роутерах.
+
+* В отчёт поместить скрин с вызовом и выводом использованной команды.
+
+![](screen/4.11.png)
+
+Запустить команды на ws11:
+
+ip r list 10.10.0.0/[маска сети] и ip r list 0.0.0.0/0
+
+![](screen/4.12.png)
+
+В отчёте объяснить, почему для адреса 10.10.0.0/[маска сети] был выбран маршрут, отличный от 0.0.0.0/0, хотя он попадает под маршрут по-умолчанию.
+
+Маршрут по-умолчанию выбиратся в том случае когда таблица маршрутов не содержит вызываемого ip адреса.
+
+## 5.5. Построение списка маршрутизаторов
+
+Запустить на r1 команду дампа
+tcpdump -tnv -i eth0
+
+![](screen/5.22.png)
+
+![](screen/5.23.png)
+
+Она отправляет пакет с TTL=1 и смотрит адрес ответившего узла, дальше TTL=2, TTL=3 и так пока не достигнет цели. Каждый раз отправляется по три пакета и для каждого из них измеряется время прохождения. Пакет отправляется на случайный порт, который, скорее всего, не занят. TTL -- по русски это время жизни пакета, ищмеряется в пройденых узлах.
+
+## 5.6. Использование протокола ICMP при маршрутизации
+
+* Запустить на r1 перехват сетевого трафика, проходящего через eth0 с помощью команды:
+tcpdump -n -i eth0 icmp
+
+* Пропинговать с ws11 несуществующий IP (например, 10.30.0.111) с помощью команды:
+ping -c 1 10.30.0.111
+
+В отчёт поместить скрин с вызовом и выводом использованных команд.
+
+![](screen/5.24.png)
+
+## Part 6. Динамическая настройка IP с помощью DHCP.
+
+* Указать MAC адрес у ws11, для этого в etc/netplan/00-installer-config.yaml надо добавить строки: macaddress: 10:10:10:10:10:BA, dhcp4: true.
+
+![](screen/6.1.png)
+
+Для r2 настроить в файле /etc/dhcp/dhcpd.conf конфигурацию службы DHCP:
+
+1) указать адрес маршрутизатора по-умолчанию, DNS-сервер и адрес внутренней сети.
+
+![](screen/6.2.png)
+
+![](screen/6.3.png)
+
+* Перезагрузить службу DHCP командой systemctl restart isc-dhcp-server. Машину ws21 перезагрузить при помощи reboot и через ip a показать, что она получила адрес. Также пропинговать ws22 с ws21.
+
+![](screen/6.4.png)
+
+ping ws2 --> ws1
+
+![](screen/6.5.png)
+
+* Для r1 настроить аналогично, но сделать выдачу адресов с жесткой привязкой к MAC-адресу (ws11). Провести аналогичные тесты.
+
+![](screen/6.6.png)
+
+![](screen/6.7.png)
+
+![](screen/6.8.png)
+
+* Запросить с ws21 обновление ip адреса.
+
+![](screen/6.9.png)
+
+![](screen/6.10.png)
+
+Использовал:
+
+1) sudo dhclient -v
+2) sudo dhclietn -r
+3) sudo dhclient -v
+
+
+## Part 7. NAT
+
+В файле /etc/apache2/ports.conf на ws22 и r2 изменить строку Listen 80 на Listen 0.0.0.0:80, то есть сделать сервер Apache2 общедоступным.
+
+ws21:
+![](screen/7.1.png)
+
+Запустить веб-сервер Apache командой service apache2 start на ws22 и r1
+
+* В отчёт поместить скрины с вызовом и выводом использованной команды.
+
+![](screen/7.2.png)
+
+![](screen/7.3.png)
+
+Добавить в фаервол, созданный по аналогии с фаерволом из Части 4, на r2 следующие правила:
+Удаление правил в таблице filter - iptables -F
+
+Удаление правил в таблице "NAT" - iptables -F -t nat
+
+Отбрасывать все маршрутизируемые пакеты - iptables --policy FORWARD DROP
+
+![](screen/7.4.png)
+
+Проверить соединение между ws22 и r1 командой ping
+
+При запуске файла с этими правилами, ws22 не должна "пинговаться" с r1
+
+![](screen/7.5.png)
+
+Добавить в файл ещё одно правило:
+
+Разрешить маршрутизацию всех пакетов протокола ICMP
+
+Проверить соединение между ws22 и r1 командой ping
+
+В отчёт поместить скрины с вызовом и выводом использованной команды.
+
+![](screen/7.6.png)
+
+Добавить в файл ещё два правила:
+
+Включить SNAT, а именно маскирование всех локальных ip из локальной сети, находящейся за r2 (по обозначениям из Части 5 - сеть 10.20.0.0)
+
+![](screen/7.7.png)
+
+Включить DNAT на 8080 порт машины r2 и добавить к веб-серверу Apache, запущенному на ws22, доступ извне сети.
+
+![](screen/7.11.png)
+
+Проверить соединение по TCP для SNAT, для этого с ws22 подключиться к серверу Apache на r1 командой:
+
+![](screen/7.9.png)
+
+Проверить соединение по TCP для DNAT, для этого с r1 подключиться к серверу Apache на ws22 командой telnet (обращаться по адресу r2 и порту 8080)
+
+![](screen/7.10.png)
+
+## Part 8. Дополнительно. Знакомство с SSH Tunnels
+
+Запустить веб-сервер Apache на ws22 только на localhost (то есть не изменять файл /etc/apache2/ports.conf или, если был изменен ранее, вернуть строку Listen 80)
+
+Воспользоваться Local TCP forwarding с ws21 до ws22, чтобы получить доступ к веб-серверу на ws22 с ws21
+
+Воспользоваться Remote TCP forwarding c ws11 до ws22, чтобы получить доступ к веб-серверу на ws22 с ws11
+
+Для проверки, сработало ли подключение в обоих предыдущих пунктах, перейдите во второй терминал (например, клавишами Alt + F2) и выполните команду:
+
+telnet 127.0.0.1 [локальный порт]
+
+![](screen/8.1.png)
+
+![](screen/8.2.png)
